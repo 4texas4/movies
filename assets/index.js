@@ -110,8 +110,6 @@ function updateSearchInfo(displayedCount,totalCount){
 function show(title, overview, movieId) {
   overlay.classList.add("show");
   document.getElementById("movie-title").textContent = title;
-
-  // Overview with "Read more"
   const container = document.createElement("span");
   const truncated = overview.substring(0, 150) + "... ";
   const textWrapper = document.createElement("span");
@@ -147,59 +145,7 @@ function show(title, overview, movieId) {
     container.appendChild(toggle);
   }
 
-  const altSources = [
-    { label: "Source 1", url: `https://vidsrc.xyz/embed/movie?tmdb=${movieId}` },
-    { label: "Source 2", url: `https://player.autoembed.cc/embed/movie/${movieId}?server=1` },
-    { label: "Source 3", url: `https://vidsrc.icu/embed/movie/${movieId}` },
-    { label: "Source 4", url: `https://moviekex.online/embed/movie/${movieId}` },
-    { label: "Source 5", url: `https://vidsrc.cc/v2/embed/movie/${movieId}` },
-    { label: "Source 6", url: `https://moviesapi.club/movie/${movieId}` },
-    { label: "Source 7", url: `https://vidlink.pro/movie/${movieId}?autoplay=true&poster=true&primaryColor=00c1db` },
-    { label: "Source 8", url: `https://embed.su/embed/movie/${movieId}` },
-    { label: "Source 9", url: `https://player.vidsrc.co/embed/movie/${movieId}?server=2` },
-    { label: "Source 10", url: `https://play2.123embed.net/movie/${movieId}` },
-    { label: "Source 11", url: `https://vidora.su/movie/${movieId}?colour=dba4b2&autoplay=true&autonextepisode=true&logo=https://4texas4.github.io/ratgames/icon.png` }
-  ];
-
-  // Add overview text to overlay (assuming a container for it)
-  const overviewContainer = document.getElementById("movie-overview");
-  overviewContainer.innerHTML = "";
-  overviewContainer.appendChild(container);
-
-  // Create and show dropdown for source selection
-  const altSourcesContainer = document.getElementById("alt-sources");
-  altSourcesContainer.innerHTML = "";
-
-  const label = document.createElement("label");
-  label.textContent = "Select Source: ";
-  label.style.color = "#fff";
-  label.style.marginRight = "10px";
-  label.htmlFor = "sourceDropdown";
-  altSourcesContainer.appendChild(label);
-
-  const select = document.createElement("select");
-  select.id = "sourceDropdown";
-  select.style.padding = "5px";
-  select.style.borderRadius = "4px";
-
-  altSources.forEach((source, i) => {
-    const option = document.createElement("option");
-    option.value = source.url;
-    option.textContent = source.label;
-    select.appendChild(option);
-  });
-
-  altSourcesContainer.appendChild(select);
-
-  const playerIframe = document.getElementById("player");
-  // Set default iframe src to first source
-  playerIframe.src = altSources[0].url;
-
-  // Update iframe src when dropdown changes
-  select.addEventListener("change", () => {
-    playerIframe.src = select.value;
-  });
-
+  document.getElementById("player").src = `https://player.vidsrc.co/embed/movie/${movieId}`;
   updateRecentlyWatched(movieId);
 }
 
