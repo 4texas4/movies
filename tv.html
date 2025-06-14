@@ -66,6 +66,21 @@
     <label for="episodeSelect">Episode:</label>
     <select id="episodeSelect"></select>
 
+    <label for="sourceSelect">Source:</label>
+    <select id="sourceSelect">
+      <option value="https://player.vidsrc.co/embed/tv/{id}/{season}/{episode}?server=2">vidsrc.co</option>
+      <option value="https://vidsrc.xyz/embed/tv?tmdb={id}&season={season}&episode={episode}">vidsrc.xyz</option>
+      <option value="https://player.autoembed.cc/embed/tv/{id}/{season}/{episode}">autoembed.cc</option>
+      <option value="https://vidsrc.icu/embed/tv/{id}/{season}/{episode}">vidsrc.icu</option>
+      <option value="https://moviekex.online/embed/tv/{id}/{season}/{episode}">moviekex.online</option>
+      <option value="https://vidsrc.cc/v2/embed/tv/{id}/{season}/{episode}">vidsrc.cc</option>
+      <option value="https://moviesapi.club/tv/{id}-{season}-{episode}">moviesapi.club</option>
+      <option value="https://vidlink.pro/tv/{id}/{season}/{episode}?autoplay=false&poster=true&primaryColor=00c1db">vidlink.pro</option>
+      <option value="https://embed.su/embed/tv/{id}/{season}/{episode}">embed.su</option>
+      <option value="https://play2.123embed.net/tv/{id}/{season}/{episode}">123embed</option>
+      <option value="https://vidora.su/tv/{id}/{season}/{episode}?colour=dba4b2&autoplay=true&autonextepisode=true&backbutton=https://ratgames.vercel.app/&pausescreen=false&logo=https://4texas4.github.io/ratgames/icon.png">vidora.su</option>
+    </select>
+
     <button id="loadBtn">OK</button>
 
     <iframe id="playerFrame" allowfullscreen></iframe>
@@ -87,7 +102,6 @@
     let currentShowId = null;
 
     // 1. Fetch Popular TV Shows
-    // GET /tv/popular
     async function fetchPopularShows() {
       const res = await fetch(`${API_URL}/tv/popular?api_key=${API_KEY}`);
       const data = await res.json();
@@ -106,7 +120,6 @@
     }
 
     // 2. Search TV Shows
-    // GET /search/tv
     async function searchShows(query) {
       const res = await fetch(`${API_URL}/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
       const data = await res.json();
@@ -122,8 +135,7 @@
       }
     });
 
-    // 3. Load TV Show Details including Seasons
-    // GET /tv/{tv_id}
+    // 3. Load TV Show Details
     async function loadShowDetails(tvId, tvName) {
       currentShowId = tvId;
       selectedShowTitle.textContent = tvName;
@@ -141,7 +153,6 @@
         seasonSelect.appendChild(opt);
       });
 
-      // Load episodes for the first season by default
       if (data.seasons.length > 0) {
         loadEpisodes(tvId, data.seasons[0].season_number);
       } else {
@@ -154,8 +165,7 @@
       loadEpisodes(currentShowId, seasonNum);
     });
 
-    // 4. Load Episodes for a Season
-    // GET /tv/{tv_id}/season/{season_number}
+    // 4. Load Episodes
     async function loadEpisodes(tvId, seasonNum) {
       episodeSelect.innerHTML = "";
       const res = await fetch(`${API_URL}/tv/${tvId}/season/${seasonNum}?api_key=${API_KEY}`);
@@ -174,15 +184,18 @@
       });
     }
 
-    // 5. On OK button click, build embed URL and load iframe
+    // 5. Load iframe from selected source
     loadBtn.addEventListener("click", () => {
       const season = seasonSelect.value;
       const episode = episodeSelect.value;
-      const embedUrl = `https://vidsrc.xyz/embed/tv?tmdb=${currentShowId}&season=${season}&episode=${episode}`;
+      const selectedSource = document.getElementById("sourceSelect").value;
+      const embedUrl = selectedSource
+        .replace("{id}", currentShowId)
+        .replace("{season}", season)
+        .replace("{episode}", episode);
       playerFrame.src = embedUrl;
     });
 
-    // Load popular shows initially
     fetchPopularShows();
   </script>
 </body>
