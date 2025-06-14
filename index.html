@@ -84,8 +84,10 @@
         <iframe id="player" allowfullscreen></iframe>
       </div>
 
-      <!-- ✅ ADDED: Clean source buttons go here -->
-      <div id="alt-sources" class="alt-sources"></div>
+      <!-- Dropdown menu for alternate sources -->
+      <select id="source-selector" aria-label="Select video source" style="margin-top: 15px; padding: 10px; border-radius: 6px; font-size: 16px;">
+        <option value="" disabled selected>Select Video Source</option>
+      </select>
     </div>
   </div>
 
@@ -125,6 +127,36 @@
         console.warn("Blocked tab-opening link:", a.href);
       }
     }, true);
+
+    // Populate dropdown and handle selection
+    document.addEventListener('DOMContentLoaded', () => {
+      const selector = document.getElementById('source-selector');
+      const player = document.getElementById('player');
+
+      // Example sources - replace movieId as needed dynamically in your actual app
+      const movieId = '123';  // You should replace this with actual movie id dynamically if you want
+      const sources = [
+        { label: 'Server 2', url: `https://player.vidsrc.co/embed/movie/${movieId}?server=2` },
+        { label: 'Server 3', url: `https://player.vidsrc.co/embed/movie/${movieId}?server=3` },
+        { label: 'Server 4', url: `https://player.vidsrc.co/embed/movie/${movieId}?server=4` }
+      ];
+
+      // Clear existing options except placeholder
+      while (selector.options.length > 1) selector.remove(1);
+
+      // Add sources as options
+      sources.forEach(({label, url}) => {
+        const option = document.createElement('option');
+        option.value = url;
+        option.textContent = label;
+        selector.appendChild(option);
+      });
+
+      // Update iframe src on selection
+      selector.addEventListener('change', () => {
+        player.src = selector.value;
+      });
+    });
   </script>
 </body>
 </html>
