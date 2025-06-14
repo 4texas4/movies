@@ -178,7 +178,7 @@
     loadBtn.addEventListener("click", () => {
       const season = seasonSelect.value;
       const episode = episodeSelect.value;
-      const embedUrl = `https://vidsrc.xyz/embed/tv?tmdb=${currentShowId}&season=${season}&episode=${episode}`;
+      const embedUrl = `https://player.vidsrc.co/embed/tv/${currentShowId}/${season}/${episode}?server=2`;
       playerFrame.src = embedUrl;
     });
 
