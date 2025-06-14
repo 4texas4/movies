@@ -110,6 +110,7 @@ function updateSearchInfo(displayedCount,totalCount){
 function show(title, overview, movieId) {
   overlay.classList.add("show");
   document.getElementById("movie-title").textContent = title;
+
   const container = document.createElement("span");
   const truncated = overview.substring(0, 150) + "... ";
   const textWrapper = document.createElement("span");
@@ -145,8 +146,46 @@ function show(title, overview, movieId) {
     container.appendChild(toggle);
   }
 
-  document.getElementById("player").src = `https://player.vidsrc.co/embed/movie/${movieId}?server=2
-`;
+  // Set default player source (server=2)
+  document.getElementById("player").src = `https://player.vidsrc.co/embed/movie/${movieId}?server=2`;
+
+  // Add alternate sources as links below the player
+  const sources = [
+    `https://vidsrc.xyz/embed/movie?tmdb=${movieId}`,
+    `https://player.autoembed.cc/embed/movie/${movieId}?server=1`,
+    `https://vidsrc.icu/embed/movie/${movieId}`,
+    `https://moviekex.online/embed/movie/${movieId}`,
+    `https://vidsrc.cc/v2/embed/movie/${movieId}`,
+    `https://moviesapi.club/movie/${movieId}`,
+    `https://vidlink.pro/movie/${movieId}?autoplay=true&poster=true&primaryColor=00c1db`,
+    `https://embed.su/embed/movie/${movieId}`,
+    `https://player.vidsrc.co/embed/movie/${movieId}?server=2`,
+    `https://play2.123embed.net/movie/${movieId}`,
+    `https://vidora.su/movie/${movieId}?colour=dba4b2&autoplay=true&autonextepisode=true&logo=https://4texas4.github.io/ratgames/icon.png`
+  ];
+
+  const altSources = document.getElementById("alt-sources");
+  altSources.innerHTML = "";  // Clear previous sources
+
+  // Optional: Add label "Other Sources:"
+  const label = document.createElement("div");
+  label.textContent = "Other Sources:";
+  label.style.color = "#fff";
+  label.style.marginBottom = "5px";
+  altSources.appendChild(label);
+
+  sources.forEach((url, i) => {
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";  // open in new tab
+    a.rel = "noopener noreferrer";
+    a.textContent = `Source ${i + 1}`;
+    a.style.marginRight = "10px";
+    a.style.color = "#00c1db";
+    a.style.textDecoration = "underline";
+    altSources.appendChild(a);
+  });
+
   updateRecentlyWatched(movieId);
 }
 
