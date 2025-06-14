@@ -110,6 +110,8 @@ function updateSearchInfo(displayedCount,totalCount){
 function show(title, overview, movieId) {
   overlay.classList.add("show");
   document.getElementById("movie-title").textContent = title;
+
+  // Description logic
   const container = document.createElement("span");
   const truncated = overview.substring(0, 150) + "... ";
   const textWrapper = document.createElement("span");
@@ -145,7 +147,21 @@ function show(title, overview, movieId) {
     container.appendChild(toggle);
   }
 
-  document.getElementById("player").src = `https://player.vidsrc.co/embed/movie/${movieId}?server=2`;
+  // Streaming source dropdown
+  const player = document.getElementById("player");
+  const sourceSelect = document.getElementById("source-select");
+
+  function updatePlayerSource() {
+    const template = sourceSelect.value;
+    const src = template.replace(/\$\{movieId\}/g, movieId);
+    player.src = src;
+  }
+
+  if (sourceSelect) {
+    sourceSelect.onchange = updatePlayerSource;
+    updatePlayerSource(); // ✅ Automatically load first option
+  }
+
   updateRecentlyWatched(movieId);
 }
 
