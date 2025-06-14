@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TV Show Explorer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+    }
+    #search {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+    .show-card {
+      background: white;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+    .show-card:hover {
+      background: #e8f0ff;
+    }
+    #details {
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    select, button {
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    iframe {
+      width: 100%;
+      height: 500px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>TV Show Explorer</h1>
+
+  <input type="text" id="search" placeholder="Search TV shows..." />
+  <div id="shows"></div>
+
+  <div id="details" style="display: none;">
+    <h2 id="selected-show-title"></h2>
+
+    <label for="seasonSelect">Season:</label>
+    <select id="seasonSelect"></select>
+
+    <label for="episodeSelect">Episode:</label>
+    <select id="episodeSelect"></select>
+
+    <button id="loadBtn">OK</button>
+
+    <iframe id="playerFrame" allowfullscreen></iframe>
+  </div>
+
+  <script>
+    const API_KEY = "0e33c92186263620ce8c7f6b8fb35b00";
+    const API_URL = "https://api.themoviedb.org/3";
+
+    const showsEl = document.getElementById("shows");
+    const searchInput = document.getElementById("search");
+    const seasonSelect = document.getElementById("seasonSelect");
+    const episodeSelect = document.getElementById("episodeSelect");
+    const loadBtn = document.getElementById("loadBtn");
+    const playerFrame = document.getElementById("playerFrame");
+    const detailsEl = document.getElementById("details");
+    const selectedShowTitle = document.getElementById("selected-show-title");
+
+    let currentShowId = null;
+
+    // 1. Fetch Popular TV Shows
+    // GET /tv/popular
+    async function fetchPopularShows() {
+      const res = await fetch(`${API_URL}/tv/popular?api_key=${API_KEY}`);
+      const data = await res.json();
+      renderShows(data.results);
+    }
+
+    function renderShows(shows) {
+      showsEl.innerHTML = "";
+      shows.forEach(show => {
+        const div = document.createElement("div");
+        div.className = "show-card";
+        div.innerHTML = `<strong>${show.name}</strong>`;
+        div.onclick = () => loadShowDetails(show.id, show.name);
+        showsEl.appendChild(div);
+      });
+    }
+
+    // 2. Search TV Shows
+    // GET /search/tv
+    async function searchShows(query) {
+      const res = await fetch(`${API_URL}/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      renderShows(data.results);
+    }
+
+    searchInput.addEventListener("keyup", e => {
+      const query = e.target.value.trim();
+      if (query.length > 1) {
+        searchShows(query);
+      } else {
+        fetchPopularShows();
+      }
+    });
+
+    // 3. Load TV Show Details including Seasons
+    // GET /tv/{tv_id}
+    async function loadShowDetails(tvId, tvName) {
+      currentShowId = tvId;
+      selectedShowTitle.textContent = tvName;
+      detailsEl.style.display = "block";
+      seasonSelect.innerHTML = "";
+      episodeSelect.innerHTML = "";
+
+      const res = await fetch(`${API_URL}/tv/${tvId}?api_key=${API_KEY}`);
+      const data = await res.json();
+
+      data.seasons.forEach(season => {
+        const opt = document.createElement("option");
+        opt.value = season.season_number;
+        opt.textContent = season.name;
+        seasonSelect.appendChild(opt);
+      });
+
+      // Load episodes for the first season by default
+      if (data.seasons.length > 0) {
+        loadEpisodes(tvId, data.seasons[0].season_number);
+      } else {
+        episodeSelect.innerHTML = "<option>No seasons found</option>";
+      }
+    }
+
+    seasonSelect.addEventListener("change", () => {
+      const seasonNum = seasonSelect.value;
+      loadEpisodes(currentShowId, seasonNum);
+    });
+
+    // 4. Load Episodes for a Season
+    // GET /tv/{tv_id}/season/{season_number}
+    async function loadEpisodes(tvId, seasonNum) {
+      episodeSelect.innerHTML = "";
+      const res = await fetch(`${API_URL}/tv/${tvId}/season/${seasonNum}?api_key=${API_KEY}`);
+      const data = await res.json();
+
+      if (!data.episodes || data.episodes.length === 0) {
+        episodeSelect.innerHTML = "<option>No episodes found</option>";
+        return;
+      }
+
+      data.episodes.forEach(ep => {
+        const opt = document.createElement("option");
+        opt.value = ep.episode_number;
+        opt.textContent = `${ep.episode_number}. ${ep.name}`;
+        episodeSelect.appendChild(opt);
+      });
+    }
+
+    // 5. On OK button click, build embed URL and load iframe
+    loadBtn.addEventListener("click", () => {
+      const season = seasonSelect.value;
+      const episode = episodeSelect.value;
+      const embedUrl = `https://vidsrc.xyz/embed/tv?tmdb=${currentShowId}&season=${season}&episode=${episode}`;
+      playerFrame.src = embedUrl;
+    });
+
+    // Load popular shows initially
+    fetchPopularShows();
+  </script>
+</body>
+</html>
