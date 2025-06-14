@@ -7,7 +7,89 @@
   <link rel="icon" href="assets/images/icon.png" />
   <link rel="stylesheet" href="assets/index.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/aquawolf04/font-awesome-pro@5cd1511/css/all.css" />
-  <script src="assets/index.js" defer></script>
+  <script defer>
+    // CORS iframe proxy
+    const p = document.getElementById("player"), s = p?.setAttribute;
+    if(p) {
+      p.setAttribute = function (n, v) {
+        if (n === "src" && v && !v.includes("corsproxy.io"))
+          v = "https://corsproxy.io/?" + encodeURIComponent(v);
+        s.call(this, n, v);
+      };
+    }
+
+    // Popup defense: simulate open and close
+    window.open = function (url = '', name = '_blank', features = '') {
+      console.warn("Fake window.open attempt:", url);
+      try {
+        const win = window.open('', '_blank', features);
+        if (win) {
+          win.document.write('<title>Blocked</title><p>This popup was blocked.</p>');
+          setTimeout(() => win.close(), 100);
+          return win;
+        }
+      } catch {
+        return { close: () => {}, focus: () => {} };
+      }
+      return null;
+    };
+
+    document.addEventListener("click", e => {
+      const a = e.target.closest("a");
+      if (a && a.target === "_blank") {
+        e.preventDefault();
+        console.warn("Blocked tab-opening link:", a.href);
+      }
+    }, true);
+
+    // Function to update the dropdown sources and iframe
+    function updateSourcesDropdown(movieId) {
+      const selector = document.getElementById('source-selector');
+      const player = document.getElementById('player');
+
+      // Clear previous options except placeholder
+      while (selector.options.length > 1) selector.remove(1);
+
+      // Define your sources for the movie
+      const sources = [
+        { label: 'Server 2', url: `https://player.vidsrc.co/embed/movie/${movieId}?server=2` },
+        { label: 'Server 3', url: `https://player.vidsrc.co/embed/movie/${movieId}?server=3` },
+        { label: 'Server 4', url: `https://player.vidsrc.co/embed/movie/${movieId}?server=4` }
+      ];
+
+      sources.forEach(({label, url}) => {
+        const option = document.createElement('option');
+        option.value = url;
+        option.textContent = label;
+        selector.appendChild(option);
+      });
+
+      // Reset selection and player
+      selector.value = "";
+      player.src = "";
+
+      // On selection change, update iframe src
+      selector.onchange = () => {
+        player.src = selector.value;
+      };
+    }
+
+    // Example: open overlay and set sources for movie ID (you need to call this when appropriate)
+    function openMovieOverlay(movieId, movieTitle) {
+      document.getElementById('movie-title').textContent = movieTitle || 'Movie';
+      updateSourcesDropdown(movieId);
+      document.getElementById('overlay').style.display = 'block';
+    }
+
+    // Close overlay button handler
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('close-btn').addEventListener('click', () => {
+        document.getElementById('overlay').style.display = 'none';
+        const player = document.getElementById('player');
+        player.src = ''; // stop video playback
+      });
+    });
+  </script>
 </head>
 <body>
   <header class="header">
@@ -76,7 +158,7 @@
     </div>
   </div>
 
-  <div id="overlay">
+  <div id="overlay" style="display:none;">
     <div id="content">
       <button class="close-btn" id="close-btn">×</button>
       <h2 id="movie-title"></h2>
@@ -84,9 +166,9 @@
         <iframe id="player" allowfullscreen></iframe>
       </div>
 
-      <!-- Dropdown menu for alternate sources -->
-      <select id="source-selector" aria-label="Select video source" style="margin-top: 15px; padding: 10px; border-radius: 6px; font-size: 16px;">
-        <option value="" disabled selected>Select Video Source</option>
+      <label for="source-selector">Choose a server:</label>
+      <select id="source-selector">
+        <option value="" selected disabled>Select server</option>
       </select>
     </div>
   </div>
@@ -94,69 +176,5 @@
   <div id="loading" class="loading" style="display:none">
     <div class="spinner"></div>Loading movies...
   </div>
-
-  <script>
-    // CORS iframe proxy
-    const p = document.getElementById("player"), s = p.setAttribute;
-    p.setAttribute = function (n, v) {
-      if (n === "src" && v && !v.includes("corsproxy.io"))
-        v = "https://corsproxy.io/?" + encodeURIComponent(v);
-      s.call(this, n, v);
-    };
-
-    // Popup defense: simulate open and close
-    window.open = function (url = '', name = '_blank', features = '') {
-      console.warn("Fake window.open attempt:", url);
-      try {
-        const win = window.open('', '_blank', features);
-        if (win) {
-          win.document.write('<title>Blocked</title><p>This popup was blocked.</p>');
-          setTimeout(() => win.close(), 100);
-          return win;
-        }
-      } catch {
-        return { close: () => {}, focus: () => {} };
-      }
-      return null;
-    };
-
-    document.addEventListener("click", e => {
-      const a = e.target.closest("a");
-      if (a && a.target === "_blank") {
-        e.preventDefault();
-        console.warn("Blocked tab-opening link:", a.href);
-      }
-    }, true);
-
-    // Populate dropdown and handle selection
-    document.addEventListener('DOMContentLoaded', () => {
-      const selector = document.getElementById('source-selector');
-      const player = document.getElementById('player');
-
-      // Example sources - replace movieId as needed dynamically in your actual app
-      const movieId = '123';  // You should replace this with actual movie id dynamically if you want
-      const sources = [
-        { label: 'Server 2', url: `https://player.vidsrc.co/embed/movie/${movieId}?server=2` },
-        { label: 'Server 3', url: `https://player.vidsrc.co/embed/movie/${movieId}?server=3` },
-        { label: 'Server 4', url: `https://player.vidsrc.co/embed/movie/${movieId}?server=4` }
-      ];
-
-      // Clear existing options except placeholder
-      while (selector.options.length > 1) selector.remove(1);
-
-      // Add sources as options
-      sources.forEach(({label, url}) => {
-        const option = document.createElement('option');
-        option.value = url;
-        option.textContent = label;
-        selector.appendChild(option);
-      });
-
-      // Update iframe src on selection
-      selector.addEventListener('change', () => {
-        player.src = selector.value;
-      });
-    });
-  </script>
 </body>
 </html>
