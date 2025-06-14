@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Rat Games</title>
+  <link rel="icon" href="assets/images/icon.png" />
+  <link rel="stylesheet" href="assets/index.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/aquawolf04/font-awesome-pro@5cd1511/css/all.css" />
+  <script src="assets/index.js" defer></script>
+</head>
+<body>
+  <header class="header">
+    <img src="assets/images/icon.png" class="header-icon" alt="Rat Icon" />
+    <div class="header-title">Rat Games Movies</div>
+  </header>
+
+  <div class="fixed-search">
+    <div class="search-container">
+      <input id="search" placeholder="What would you like to watch?" autocomplete="off" />
+    </div>
+  </div>
+
+  <section class="hero"><h1>Welcome to Rat Games!</h1></section>
+
+  <div class="main-content">
+    <div id="search-results" class="section" style="display:none">
+      <div id="search-info" class="search-info"></div>
+      <div class="movies-grid results"></div>
+      <button id="loadMoreBtn" class="load-more" style="display:none">Load More</button>
+      <div id="endMessage" class="end-message" style="display:none">Oh no, you've reached the end... 😢</div>
+      <div id="no-movies" class="no-movies" style="display:none">No movies found.</div>
+    </div>
+
+    <div id="other-sections">
+      <div id="favorites" class="section" style="display:none">
+        <h2 class="section-header">Favorites</h2>
+        <div class="movies-grid favorites-movies"></div>
+      </div>
+
+      <div id="recommendations" class="section" style="display:none">
+        <h2 class="section-header">Recommendations</h2>
+        <div class="slider-container">
+          <button class="slider-btn prev"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="slider-track recommendations"></div>
+          <button class="slider-btn next"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <div id="popular" class="section">
+        <h2 class="section-header">Popular Movies</h2>
+        <div class="slider-container">
+          <button class="slider-btn prev"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="slider-track popular-movies"></div>
+          <button class="slider-btn next"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <div id="top-rated" class="section">
+        <h2 class="section-header">Top Rated Movies</h2>
+        <div class="slider-container">
+          <button class="slider-btn prev"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="slider-track top-rated-movies"></div>
+          <button class="slider-btn next"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <div id="upcoming" class="section">
+        <h2 class="section-header">Upcoming Movies</h2>
+        <div class="slider-container">
+          <button class="slider-btn prev"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="slider-track upcoming-movies"></div>
+          <button class="slider-btn next"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="overlay">
+    <div id="content">
+      <button class="close-btn" id="close-btn">×</button>
+      <h2 id="movie-title"></h2>
+      <div class="video-container"><iframe id="player" allowfullscreen></iframe></div>
+    </div>
+  </div>
+
+  <div id="loading" class="loading" style="display:none"><div class="spinner"></div>Loading movies...</div>
+
+  <script>
+    // CORS iframe proxy
+    const p = document.getElementById("player"), s = p.setAttribute;
+    p.setAttribute = function (n, v) {
+      if (n === "src" && v && !v.includes("corsproxy.io"))
+        v = "https://corsproxy.io/?" + encodeURIComponent(v);
+      s.call(this, n, v);
+    };
+
+    // Popup defense: simulate open and close
+    window.open = function (url = '', name = '_blank', features = '') {
+      console.warn("Fake window.open attempt:", url);
+      try {
+        const win = window.open('', '_blank', features);
+        if (win) {
+          win.document.write('<title>Blocked</title><p>This popup was blocked.</p>');
+          setTimeout(() => win.close(), 100);
+          return win;
+        }
+      } catch {
+        return { close: () => {}, focus: () => {} };
+      }
+      return null;
+    };
+
+    document.addEventListener("click", e => {
+      const a = e.target.closest("a");
+      if (a && a.target === "_blank") {
+        e.preventDefault();
+        console.warn("Blocked tab-opening link:", a.href);
+      }
+    }, true);
+  </script>
+</body>
+</html>
