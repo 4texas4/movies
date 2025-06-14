@@ -80,11 +80,18 @@
     <div id="content">
       <button class="close-btn" id="close-btn">×</button>
       <h2 id="movie-title"></h2>
-      <div class="video-container"><iframe id="player" allowfullscreen></iframe></div>
+      <div class="video-container">
+        <iframe id="player" allowfullscreen></iframe>
+      </div>
+
+      <!-- ✅ ADDED: Clean source buttons go here -->
+      <div id="alt-sources" class="alt-sources"></div>
     </div>
   </div>
 
-  <div id="loading" class="loading" style="display:none"><div class="spinner"></div>Loading movies...</div>
+  <div id="loading" class="loading" style="display:none">
+    <div class="spinner"></div>Loading movies...
+  </div>
 
   <script>
     // CORS iframe proxy
