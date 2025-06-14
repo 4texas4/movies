@@ -80,7 +80,25 @@
     <div id="content">
       <button class="close-btn" id="close-btn">×</button>
       <h2 id="movie-title"></h2>
-      <div class="video-container">   <label for="source-select" style="color: #fff; margin-bottom: 8px; display: block;">Choose a source:</label>   <select id="source-select" style="margin-bottom: 10px; padding: 6px; border-radius: 6px;">     <option value="https://player.vidsrc.co/embed/movie/${movieId}?server=2">vidsrc.co</option>     <option value="https://vidsrc.xyz/embed/movie?tmdb=${movieId}">vidsrc.xyz</option>     <option value="https://player.autoembed.cc/embed/movie/${movieId}?server=1">autoembed.cc</option>     <option value="https://vidsrc.icu/embed/movie/${movieId}">vidsrc.icu</option>     <option value="https://moviekex.online/embed/movie/${movieId}">moviekex.online</option>     <option value="https://vidsrc.cc/v2/embed/movie/${movieId}">vidsrc.cc</option>     <option value="https://moviesapi.club/movie/${movieId}">moviesapi.club</option>     <option value="https://vidlink.pro/movie/${movieId}?autoplay=true&poster=true&primaryColor=00c1db">vidlink.pro</option>     <option value="https://embed.su/embed/movie/${movieId}">embed.su</option>     <option value="https://play2.123embed.net/movie/${movieId}">123embed.net</option>     <option value="https://vidora.su/movie/${movieId}?colour=dba4b2&autoplay=true&autonextepisode=true&logo=https://4texas4.github.io/ratgames/icon.png">vidora.su</option>   </select>   <iframe id="player" allowfullscreen></iframe> </div>
+      <div class="video-container">
+  <iframe id="player" allowfullscreen></iframe>
+</div>
+<div class="source-select-container">
+  <label for="source-select">Choose a source:</label>
+  <select id="source-select">
+    <option value="https://player.vidsrc.co/embed/movie/${movieId}?server=2">vidsrc.co</option>
+    <option value="https://vidsrc.xyz/embed/movie?tmdb=${movieId}">vidsrc.xyz</option>
+    <option value="https://player.autoembed.cc/embed/movie/${movieId}?server=1">autoembed.cc</option>
+    <option value="https://vidsrc.icu/embed/movie/${movieId}">vidsrc.icu</option>
+    <option value="https://moviekex.online/embed/movie/${movieId}">moviekex.online</option>
+    <option value="https://vidsrc.cc/v2/embed/movie/${movieId}">vidsrc.cc</option>
+    <option value="https://moviesapi.club/movie/${movieId}">moviesapi.club</option>
+    <option value="https://vidlink.pro/movie/${movieId}?autoplay=true&poster=true&primaryColor=00c1db">vidlink.pro</option>
+    <option value="https://embed.su/embed/movie/${movieId}">embed.su</option>
+    <option value="https://play2.123embed.net/movie/${movieId}">123embed.net</option>
+    <option value="https://vidora.su/movie/${movieId}?colour=dba4b2&autoplay=true&autonextepisode=true&logo=https://4texas4.github.io/ratgames/icon.png">vidora.su</option>
+  </select>
+</div>
     </div>
   </div>
 
