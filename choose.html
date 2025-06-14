@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Select</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #0d0d0d;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      margin-bottom: 40px;
+      font-size: 2.5rem;
+      letter-spacing: 1px;
+    }
+
+    .btn-container {
+      display: flex;
+      gap: 20px;
+    }
+
+    .btn {
+      background-color: #2b2b2b;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      color: #fff;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background-color: #3a3a3a;
+    }
+
+    .btn:active {
+      background-color: #505050;
+    }
+  </style>
+</head>
+<body>
+  <h1>Select</h1>
+  <div class="btn-container">
+    <a href="movies.html" class="btn">Movies</a>
+    <a href="tv.html" class="btn">TV Shows (WIP)</a>
+  </div>
+</body>
+</html>
