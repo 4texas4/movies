@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TV Show Explorer</title>
+  <title>TV Shows</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -26,9 +26,17 @@
       border-radius: 5px;
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
       cursor: pointer;
+      overflow: hidden;
     }
     .show-card:hover {
       background: #e8f0ff;
+    }
+    .show-card img {
+      width: 100px;
+      height: auto;
+      float: left;
+      margin-right: 10px;
+      border-radius: 4px;
     }
     #details {
       background: #fff;
@@ -68,7 +76,7 @@
 
     <label for="sourceSelect">Source:</label>
     <select id="sourceSelect">
-      <option value="https://player.vidsrc.co/embed/tv/{id}/{season}/{episode}?server=2">vidsrc.co</option>
+      <option value="https://player.vidsrc.co/embed/tv/{id}/{season}/{episode}?server=2">player.vidsrc.co</option>
       <option value="https://vidsrc.xyz/embed/tv?tmdb={id}&season={season}&episode={episode}">vidsrc.xyz</option>
       <option value="https://player.autoembed.cc/embed/tv/{id}/{season}/{episode}">autoembed.cc</option>
       <option value="https://vidsrc.icu/embed/tv/{id}/{season}/{episode}">vidsrc.icu</option>
@@ -77,7 +85,7 @@
       <option value="https://moviesapi.club/tv/{id}-{season}-{episode}">moviesapi.club</option>
       <option value="https://vidlink.pro/tv/{id}/{season}/{episode}?autoplay=false&poster=true&primaryColor=00c1db">vidlink.pro</option>
       <option value="https://embed.su/embed/tv/{id}/{season}/{episode}">embed.su</option>
-      <option value="https://play2.123embed.net/tv/{id}/{season}/{episode}">123embed</option>
+      <option value="https://play2.123embed.net/tv/{id}/{season}/{episode}">123embed.net</option>
       <option value="https://vidora.su/tv/{id}/{season}/{episode}?colour=dba4b2&autoplay=true&autonextepisode=true&backbutton=https://ratgames.vercel.app/&pausescreen=false&logo=https://4texas4.github.io/ratgames/icon.png">vidora.su</option>
     </select>
 
@@ -89,11 +97,14 @@
   <script>
     const API_KEY = "0e33c92186263620ce8c7f6b8fb35b00";
     const API_URL = "https://api.themoviedb.org/3";
+    const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
+    const FALLBACK_IMAGE_URL = "https://dummyimage.com/200x300/333/fff.png&text=No+Cover";
 
     const showsEl = document.getElementById("shows");
     const searchInput = document.getElementById("search");
     const seasonSelect = document.getElementById("seasonSelect");
     const episodeSelect = document.getElementById("episodeSelect");
+    const sourceSelect = document.getElementById("sourceSelect");
     const loadBtn = document.getElementById("loadBtn");
     const playerFrame = document.getElementById("playerFrame");
     const detailsEl = document.getElementById("details");
@@ -101,7 +112,6 @@
 
     let currentShowId = null;
 
-    // 1. Fetch Popular TV Shows
     async function fetchPopularShows() {
       const res = await fetch(`${API_URL}/tv/popular?api_key=${API_KEY}`);
       const data = await res.json();
@@ -113,13 +123,22 @@
       shows.forEach(show => {
         const div = document.createElement("div");
         div.className = "show-card";
-        div.innerHTML = `<strong>${show.name}</strong>`;
+
+        const posterUrl = show.poster_path
+          ? `${IMAGE_BASE_URL}${show.poster_path}`
+          : FALLBACK_IMAGE_URL;
+
+        div.innerHTML = `
+          <img src="${posterUrl}" alt="${show.name}" />
+          <strong>${show.name}</strong><br>
+          <small>${show.overview ? show.overview.slice(0, 100) + "..." : ""}</small>
+          <div style="clear: both;"></div>
+        `;
         div.onclick = () => loadShowDetails(show.id, show.name);
         showsEl.appendChild(div);
       });
     }
 
-    // 2. Search TV Shows
     async function searchShows(query) {
       const res = await fetch(`${API_URL}/search/tv?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
       const data = await res.json();
@@ -135,7 +154,6 @@
       }
     });
 
-    // 3. Load TV Show Details
     async function loadShowDetails(tvId, tvName) {
       currentShowId = tvId;
       selectedShowTitle.textContent = tvName;
@@ -156,7 +174,7 @@
       if (data.seasons.length > 0) {
         loadEpisodes(tvId, data.seasons[0].season_number);
       } else {
-        episodeSelect.innerHTML = "<option>No seasons found</option>";
+        episodeSelect.innerHTML = "<option>No episodes found</option>";
       }
     }
 
@@ -165,7 +183,6 @@
       loadEpisodes(currentShowId, seasonNum);
     });
 
-    // 4. Load Episodes
     async function loadEpisodes(tvId, seasonNum) {
       episodeSelect.innerHTML = "";
       const res = await fetch(`${API_URL}/tv/${tvId}/season/${seasonNum}?api_key=${API_KEY}`);
@@ -184,15 +201,16 @@
       });
     }
 
-    // 5. Load iframe from selected source
     loadBtn.addEventListener("click", () => {
       const season = seasonSelect.value;
       const episode = episodeSelect.value;
-      const selectedSource = document.getElementById("sourceSelect").value;
-      const embedUrl = selectedSource
+      const sourceTemplate = sourceSelect.value;
+
+      const embedUrl = sourceTemplate
         .replace("{id}", currentShowId)
         .replace("{season}", season)
         .replace("{episode}", episode);
+
       playerFrame.src = embedUrl;
     });
 
