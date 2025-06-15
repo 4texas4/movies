@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Rat Games TV</title>
+  <link rel="icon" href="assets/images/icon.png" />
+  <link rel="stylesheet" href="assets/index.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/aquawolf04/font-awesome-pro@5cd1511/css/all.css" />
+  <script src="assets/index.js" defer></script>
+</head>
+<body>
+  <header class="header">
+    <img src="assets/images/icon.png" class="header-icon" alt="Rat Icon" />
+    <div class="header-title">Rat Games TV</div>
+  </header>
+
+  <div class="fixed-search">
+    <div class="search-container">
+      <input id="search" placeholder="What would you like to watch?" autocomplete="off" />
+    </div>
+  </div>
+
+  <section class="hero">
+    <h1>Welcome to Rat Games!</h1>
+  </section>
+
+  <div class="main-content">
+    <div id="search-results" class="section" style="display:none">
+      <div id="search-info" class="search-info"></div>
+      <div class="movies-grid results"></div>
+      <button id="loadMoreBtn" class="load-more" style="display:none">Load More</button>
+      <div id="endMessage" class="end-message" style="display:none">Oh no, you've reached the end... 😢</div>
+      <div id="no-movies" class="no-movies" style="display:none">No shows found.</div>
+    </div>
+
+    <div id="other-sections">
+      <div id="favorites" class="section" style="display:none">
+        <h2 class="section-header">Favorites</h2>
+        <div class="movies-grid favorites-movies"></div>
+      </div>
+
+      <div id="recommendations" class="section" style="display:none">
+        <h2 class="section-header">Recommendations</h2>
+        <div class="slider-container">
+          <button class="slider-btn prev"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="slider-track recommendations"></div>
+          <button class="slider-btn next"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <div id="popular" class="section">
+        <h2 class="section-header">Popular Shows</h2>
+        <div class="slider-container">
+          <button class="slider-btn prev"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="slider-track popular-movies"></div>
+          <button class="slider-btn next"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <div id="top-rated" class="section">
+        <h2 class="section-header">Top Rated Shows</h2>
+        <div class="slider-container">
+          <button class="slider-btn prev"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="slider-track top-rated-movies"></div>
+          <button class="slider-btn next"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <div id="upcoming" class="section">
+        <h2 class="section-header">Airing Today</h2>
+        <div class="slider-container">
+          <button class="slider-btn prev"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="slider-track upcoming-movies"></div>
+          <button class="slider-btn next"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="overlay">
+    <div id="content">
+      <button class="close-btn" id="close-btn">×</button>
+      <!-- Show title -->
+      <h2 id="movie-title"></h2>
+
+      <!-- Dropdowns between title & player -->
+      <div id="season-episode-controls" style="margin: 16px 0; display: flex; gap: 12px; flex-wrap: wrap;">
+        <label for="seasonSelect">Season:</label>
+        <select id="seasonSelect"></select>
+
+        <label for="episodeSelect">Episode:</label>
+        <select id="episodeSelect"></select>
+
+        <label for="source-select">Source:</label>
+        <select id="source-select">
+          <option value="https://player.vidsrc.co/embed/tv/${seriesId}/${season}/${episode}?server=2">vidsrc.co</option>
+          <option value="https://vidsrc.xyz/embed/tv?tmdb=${seriesId}&season=${season}&episode=${episode}">vidsrc.xyz</option>
+          <option value="https://player.autoembed.cc/embed/tv/${seriesId}/${season}/${episode}">autoembed.cc</option>
+          <option value="https://vidsrc.icu/embed/tv/${seriesId}/${season}/${episode}">vidsrc.icu</option>
+          <option value="https://moviekex.online/embed/tv/${seriesId}/${season}/${episode}">moviekex.online</option>
+          <option value="https://vidsrc.cc/v2/embed/tv/${seriesId}/${season}/${episode}">vidsrc.cc</option>
+          <option value="https://moviesapi.club/tv/${seriesId}-${season}-${episode}">moviesapi.club</option>
+          <option value="https://vidlink.pro/tv/${seriesId}/${season}/${episode}?autoplay=false&poster=true&primaryColor=00c1db">vidlink.pro</option>
+          <option value="https://embed.su/embed/tv/${seriesId}/${season}/${episode}">embed.su</option>
+          <option value="https://play2.123embed.net/tv/${seriesId}/${season}/${episode}">123embed.net</option>
+          <option value="https://vidora.su/tv/${seriesId}/${season}/${episode}?colour=dba4b2&autoplay=true&autonextepisode=true&backbutton=https://ratgames.vercel.app/&pausescreen=false&logo=https://4texas4.github.io/ratgames/icon.png">vidora.su</option>
+        </select>
+      </div>
+
+      <!-- Video player -->
+      <div class="video-container">
+        <iframe id="player" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading" class="loading" style="display:none">
+    <div class="spinner"></div>
+    Loading shows...
+  </div>
+
+  <script>
+    const p = document.getElementById("player"), s = p.setAttribute;
+    p.setAttribute = function (n, v) {
+      if (n === "src" && v && !v.includes("corsproxy.io")) {
+        v = "https://corsproxy.io/?" + encodeURIComponent(v);
+      }
+      s.call(this, n, v);
+    };
+
+    window.open = function (url = '', name = '_blank', features = '') {
+      console.warn("Fake window.open attempt:", url);
+      try {
+        const win = window.open('', '_blank', features);
+        if (win) {
+          win.document.write('<title>Blocked</title><p>This popup was blocked.</p>');
+          setTimeout(() => win.close(), 100);
+          return win;
+        }
+      } catch {
+        return { close: () => {}, focus: () => {} };
+      }
+      return null;
+    };
+
+    document.addEventListener("click", e => {
+      const a = e.target.closest("a");
+      if (a && a.target === "_blank") {
+        e.preventDefault();
+        console.warn("Blocked tab-opening link:", a.href);
+      }
+    }, true);
+  </script>
+</body>
+</html>
